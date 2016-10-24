@@ -14,35 +14,216 @@
      limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.projectodd.vdx</groupId>
-    <artifactId>vdx-parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
-    <relativePath>../</relativePath>
-  </parent>
-  
-  <artifactId>vdx-wildfly</artifactId>
-  <packaging>jar</packaging>
-  <name>VDX WildFly</name>
+    <parent>
+        <groupId>org.projectodd.vdx</groupId>
+        <artifactId>vdx-parent</artifactId>
+        <version>1.0.2-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
 
-  <description>VDX WildFly support</description>
+    <artifactId>vdx-wildfly</artifactId>
+    <packaging>jar</packaging>
+    <name>VDX WildFly</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.projectodd.vdx</groupId>
-      <artifactId>vdx-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+    <description>VDX WildFly support</description>
 
-    <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging</artifactId>
-      <version>${version.jboss-logging}</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+    <properties>
+        <jboss.home>MUST-BE-DEFINED</jboss.home>
+
+        <version.org.jboss.arquillian>1.1.11.Final</version.org.jboss.arquillian>
+        <arquillian.version>1.1.1.Final</arquillian.version>
+        <version.org.jboss.wildfly.dist>10.1.0.Final</version.org.jboss.wildfly.dist>
+        <version.org.apache.maven.plugins.maven-antrun-plugin>1.8</version.org.apache.maven.plugins.maven-antrun-plugin>
+
+        <version.org.apache.maven.plugins.maven-surefire-plugin>2.19.1
+        </version.org.apache.maven.plugins.maven-surefire-plugin>
+        <version.org.wildfly.arquillian.wildfly-arquillian-everything>1.0.2.Final
+        </version.org.wildfly.arquillian.wildfly-arquillian-everything>
+        <version.org.apache.maven.plugins.maven-dependency-plugin>2.10
+        </version.org.apache.maven.plugins.maven-dependency-plugin>
+
+        <domain>false</domain>
+        <arquillian.launch>jboss</arquillian.launch>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectodd.vdx</groupId>
+            <artifactId>vdx-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>${version.jboss-logging}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- arquillian dependencies  -->
+        <dependency>
+            <groupId>org.jboss.arquillian</groupId>
+            <artifactId>arquillian-bom</artifactId>
+            <version>${version.org.jboss.arquillian}</version>
+            <scope>import</scope>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <version>${arquillian.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wildfly.arquillian</groupId>
+            <artifactId>wildfly-arquillian-container-managed</artifactId>
+            <version>${version.org.wildfly.arquillian.wildfly-arquillian-everything}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-dist</artifactId>
+            <version>${version.org.jboss.wildfly.dist}</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <!-- download wildfly 10.x if jboss.home system property is not defined and unzip it -->
+        <profile>
+            <id>download-wildfly</id>
+            <activation>
+                <property>
+                    <name>!jboss.home</name>
+                </property>
+            </activation>
+            <properties>
+                <jboss.home>${basedir}/target/jboss-as</jboss.home>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>${version.org.apache.maven.plugins.maven-dependency-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-jboss-as</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.wildfly</groupId>
+                                            <artifactId>wildfly-dist</artifactId>
+                                            <version>${version.org.jboss.wildfly.dist}</version>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>${version.org.apache.maven.plugins.maven-antrun-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>rename-unpacked-jboss-as</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <delete dir="${project.build.directory}/jboss-as"/>
+                                        <move todir="${project.build.directory}/jboss-as">
+                                            <fileset dir="${project.build.directory}">
+                                                <include name="jboss*/**/*"/>
+                                                <include name="wildfly*/**/*"/>
+                                            </fileset>
+                                            <cutdirsmapper dirs="1"/>
+                                        </move>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- if "domain" system property is not defined then by default run tests in standalone mode -->
+        <profile>
+            <id>standalone</id>
+            <activation>
+                <property>
+                    <name>!domain</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <classpathDependencyExcludes>
+                                <classpathDependencyExclude>
+                                    org.wildfly.arquillian:wildfly-arquillian-container-domain-managed
+                                </classpathDependencyExclude>
+                            </classpathDependencyExcludes>
+                            <systemPropertyVariables>
+                                <jboss.home>${jboss.home}</jboss.home>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- if "domain" system property is specified, run tests in domain mode -->
+        <profile>
+            <id>domain</id>
+            <activation>
+                <property>
+                    <name>domain</name>
+                </property>
+            </activation>
+            <properties>
+                <eap6to7migration.domain>true</eap6to7migration.domain>
+                <arquillian.launch>jboss-domain</arquillian.launch>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <classpathDependencyExcludes>
+                                <classpathDependencyExclude>
+                                    org.wildfly.arquillian:wildfly-arquillian-container-managed
+                                </classpathDependencyExclude>
+                            </classpathDependencyExcludes>
+                            <systemPropertyVariables>
+                                <jboss.home>${jboss.home}</jboss.home>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

@@ -7,9 +7,19 @@ import java.util.Map;
 
 public interface Server {
 
+    public static final String JBOSS_HOME = System.getProperty("jboss.home", "jboss-as");
+    public static final String DEFAULT_SERVER_CONFIG = OperatingMode.isDomain() ? "domain.xml" : "standalone.xml";
+    public static final String DEFAULT_HOST_CONFIG = "host.xml";
+
     static final Server server = null;
 
-    public void start();
+    /**
+     * Starts the server. If @ServerConfig annotation is present on method in calling stacktrace (for example test) then
+     * it's applied before the server is started.
+     *
+     * @throws Exception
+     */
+    public void start() throws Exception;
 
     public void stop();
 
@@ -18,7 +28,7 @@ public interface Server {
      * otherwise standalone server will be used.
      *
      * @param controller arquillian container controller
-     * @return Server instance
+     * @return Server instance - standalone by default or domain if -Ddomain=true is set
      */
     public static Server create(ContainerController controller) {
         if (server == null) {

@@ -1,3 +1,4 @@
+<!-- todo use dependency management and plugin management from parent pom for versions -->
 <!--
      Copyright 2016 Red Hat, Inc, and individual contributors.
     
@@ -33,7 +34,11 @@
     <description>VDX WildFly support</description>
 
     <properties>
-        <jboss.home>MUST-BE-DEFINED</jboss.home>
+
+        <jboss.home>IF-NOT-DEFINED-WILDFLY-WILL-BE-DOWNLOADED-UNZIPPED-AND-USED-AUTOMATICALLY</jboss.home>
+
+        <!-- if tests for domain are executed, set this to true by -Ddomain=true -->
+        <domain>false</domain>
 
         <version.org.jboss.arquillian>1.1.11.Final</version.org.jboss.arquillian>
         <arquillian.version>1.1.1.Final</arquillian.version>
@@ -46,10 +51,8 @@
         </version.org.wildfly.arquillian.wildfly-arquillian-everything>
         <version.org.apache.maven.plugins.maven-dependency-plugin>2.10
         </version.org.apache.maven.plugins.maven-dependency-plugin>
-
-        <domain>false</domain>
+        <version.org.wildfly.extras.creaper>1.2.0</version.org.wildfly.extras.creaper>
         <arquillian.launch>jboss</arquillian.launch>
-
     </properties>
 
     <dependencies>
@@ -71,6 +74,18 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- creaper dependencies - used for bad xml snippets injection to xml configuration of WF10 server -->
+        <dependency>
+            <groupId>org.wildfly.extras.creaper</groupId>
+            <artifactId>creaper-core</artifactId>
+            <version>${version.org.wildfly.extras.creaper}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wildfly.extras.creaper</groupId>
+            <artifactId>creaper-commands</artifactId>
+            <version>${version.org.wildfly.extras.creaper}</version>
         </dependency>
 
         <!-- arquillian dependencies  -->

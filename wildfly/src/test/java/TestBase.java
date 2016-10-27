@@ -1,11 +1,9 @@
 import org.jboss.arquillian.container.test.api.ContainerController;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.io.File;
+import transformations.AddNonExistentElementToMessagingSubsystem;
 
 /*
  * Copyright 2016 Red Hat, Inc, and individual contributors.
@@ -27,23 +25,21 @@ public class TestBase {
 
     protected static final String STANDALONE_ARQUILLIAN_CONTAINER = "jboss";
     protected static final String DOMAIN_ARQUILLIAN_CONTAINER = "jboss-domain";
-    protected static final String JBOSS_HOME = System.getProperty("jboss.home", "jboss-as");
 
     @ArquillianResource
     private ContainerController controller;
-
 
     public Server container()   {
         return Server.create(controller);
     }
 
     @Test
-    @ServerConfig(configuration="standalone-full-ha.xml") // TODO Server.start() method will find standalone...xml in resources and copy to configuration directory before server is started
-    public void test() {
+    @ServerConfig(configuration="standalone-full-ha.xml", xmlTransformationClass= AddNonExistentElementToMessagingSubsystem.class) // TODO Server.start() method will find standalone...xml in resources and copy to configuration directory before server is started
+    public void test() throws Exception {
         container().start();
         container().stop();
 
         // container().archiveServerLogToDirectory(path_to_log_directory_for_this_test)
-        // parse files in archived log directory that they contain given error  - use regular expression to verify error log
+        // parse files in archived log directory that contain given error  - use regular expression to verify error log
     }
 }

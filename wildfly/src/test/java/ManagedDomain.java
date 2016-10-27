@@ -1,5 +1,10 @@
 import org.jboss.arquillian.container.test.api.ContainerController;
+import org.wildfly.extras.creaper.commands.foundation.offline.ConfigurationFileBackup;
+import org.wildfly.extras.creaper.core.ManagementClient;
+import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
+import org.wildfly.extras.creaper.core.offline.OfflineOptions;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,12 +15,12 @@ public class ManagedDomain extends AbstractServer {
 
     ContainerController controller;
 
-    public ManagedDomain(ContainerController controller)    {
+    protected ManagedDomain(ContainerController controller)    {
         this.controller = controller;
     }
 
     @Override
-    public void start() {
+    public void startServer() {
 
         ServerConfig serverConfig = getServerConfig();
         Map<String, String> containerProperties = new HashMap<>();
@@ -23,10 +28,25 @@ public class ManagedDomain extends AbstractServer {
             containerProperties.put("serverConfig", serverConfig.configuration());
             containerProperties.put("hostConfig", serverConfig.hostConfig());
         } else { // if no server config was specified return arquillian to default // todo take this from arquillian.xml
-            containerProperties.put("serverConfig", "domain.xml");
-            containerProperties.put("hostConfig", "host.xml");
+            containerProperties.put("serverConfig", DEFAULT_SERVER_CONFIG);
+            containerProperties.put("hostConfig", DEFAULT_HOST_CONFIG);
         }
         controller.start(TestBase.DOMAIN_ARQUILLIAN_CONTAINER, containerProperties);
+    }
+
+    @Override
+    protected void copyConfigFilesFromResourcesIfItDoesNotExist() {
+
+
+    }
+
+    @Override
+    protected OfflineManagementClient getOfflineManangementClient() throws Exception {
+        return ManagementClient.offline(OfflineOptions
+                .domain()
+                .forProfile("default").build().baseDirectory(new File(JBOSS_HOME))
+                .configurationFile(getServerConfig() == null ? DEFAULT_SERVER_CONFIG : getServerConfig().configuration())
+                .build());
     }
 
     @Override

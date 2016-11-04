@@ -49,20 +49,8 @@ public class StandaloneServer extends AbstractServer {
     }
 
     @Override
-    protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws IOException {
-
-        String serverConfiguration = getServerConfig().configuration();
-        Path targetPath = Paths.get(JBOSS_HOME, "standalone", "configuration", serverConfiguration);
-
-        if (Files.exists(targetPath)) {
-            // file already exists in config directory so do nothing
-            return;
-        } else {
-            // find xml in resources directory
-            ClassLoader classLoader = getClass().getClassLoader();
-            Path sourcePath = Paths.get(classLoader.getResource("examples/standalone/" + serverConfiguration).getPath());
-            Files.copy(sourcePath,targetPath, StandardCopyOption.REPLACE_EXISTING);
-        }
+    protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception {
+        new FileUtils().copyFileFromResourcesToServerIfItDoesNotExist(getServerConfig().configuration());
     }
 
     @Override

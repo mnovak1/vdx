@@ -1,10 +1,14 @@
 import org.jboss.arquillian.container.test.api.ContainerController;
-import org.wildfly.extras.creaper.commands.foundation.offline.ConfigurationFileBackup;
 import org.wildfly.extras.creaper.core.ManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineOptions;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,10 +39,12 @@ public class ManagedDomain extends AbstractServer {
     }
 
     @Override
-    protected void copyConfigFilesFromResourcesIfItDoesNotExist() {
-
-
+    protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception {
+        new FileUtils().copyFileFromResourcesToServerIfItDoesNotExist(getServerConfig().configuration());
+        new FileUtils().copyFileFromResourcesToServerIfItDoesNotExist(getServerConfig().hostConfig());
     }
+
+
 
     @Override
     protected OfflineManagementClient getOfflineManangementClient() throws Exception {

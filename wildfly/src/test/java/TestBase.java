@@ -4,6 +4,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import transformations.AddNonExistentElementToMessagingSubsystem;
+import transformations.TypoInExtensions;
 
 /*
  * Copyright 2016 Red Hat, Inc, and individual contributors.
@@ -34,10 +35,10 @@ public class TestBase {
     }
 
     @Test
-    @ServerConfig(configuration="standalone-full-ha.xml", xmlTransformationClass= AddNonExistentElementToMessagingSubsystem.class) // TODO Server.start() method will find standalone...xml in resources and copy to configuration directory before server is started
+    @ServerConfig(configuration="duplicate-attribute.xml") //, xmlTransformationClass= TypoInExtensions.class)
     public void test() throws Exception {
         container().start();
-        container().stop();
+        //container().stop();
 
         // container().archiveServerLogToDirectory(path_to_log_directory_for_this_test)
         // parse files in archived log directory that contain given error  - use regular expression to verify error log

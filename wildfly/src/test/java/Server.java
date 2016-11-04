@@ -11,16 +11,24 @@ public interface Server {
     public static final String DEFAULT_SERVER_CONFIG = OperatingMode.isDomain() ? "domain.xml" : "standalone.xml";
     public static final String DEFAULT_HOST_CONFIG = "host.xml";
 
+    public static final String STANDALONE_DIRECTORY = "standalone";
+    public static final String DOMAIN_DIRECTORY = "domain";
+
     static final Server server = null;
 
     /**
-     * Starts the server. If @ServerConfig annotation is present on method in calling stacktrace (for example test) then
+     * Starts the server. If @ServerConfig annotation is present on method in calling stacktrace (for example test method) then
      * it's applied before the server is started.
      *
      * @throws Exception
      */
     public void start() throws Exception;
 
+    /**
+     * Stops server.
+     *
+     * Not really useful for this testing but can be handy.
+     */
     public void stop();
 
     /**

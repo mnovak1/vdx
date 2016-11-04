@@ -41,7 +41,6 @@
         <domain>false</domain>
 
         <version.org.jboss.arquillian>1.1.11.Final</version.org.jboss.arquillian>
-        <arquillian.version>1.1.1.Final</arquillian.version>
         <version.org.jboss.wildfly.dist>10.1.0.Final</version.org.jboss.wildfly.dist>
         <version.org.apache.maven.plugins.maven-antrun-plugin>1.8</version.org.apache.maven.plugins.maven-antrun-plugin>
 
@@ -53,6 +52,7 @@
         </version.org.apache.maven.plugins.maven-dependency-plugin>
         <version.org.wildfly.extras.creaper>1.2.0</version.org.wildfly.extras.creaper>
         <arquillian.launch>jboss</arquillian.launch>
+        <version.junit>4.12</version.junit>
     </properties>
 
     <dependencies>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
 
@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-container</artifactId>
-            <version>${arquillian.version}</version>
+            <version>${version.org.jboss.arquillian}</version>
         </dependency>
         <dependency>
             <groupId>org.wildfly.arquillian</groupId>

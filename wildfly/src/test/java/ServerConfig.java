@@ -1,5 +1,6 @@
 
 import transformations.AddNonExistentElementToMessagingSubsystem;
+import transformations.DoNothing;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,6 +36,6 @@ public @interface ServerConfig {
      */
     String hostConfig() default "host.xml";
 
-    Class xmlTransformationClass();
+    Class xmlTransformationClass() default DoNothing.class;
 
 }

@@ -1,9 +1,14 @@
 import org.wildfly.extras.creaper.commands.foundation.offline.ConfigurationFileBackup;
 import org.wildfly.extras.creaper.commands.foundation.offline.xml.GroovyXmlTransform;
 import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
+import transformations.DoNothing;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Created by mnovak on 10/24/16.
@@ -15,11 +20,11 @@ public abstract class AbstractServer implements Server {
     @Override
     public void start() throws Exception {
 
-        // if config not in config  diretory then copy from resources
+        // if configuration file is not in configuration directory then copy from resources directory (never override)
         copyConfigFilesFromResourcesIfItDoesNotExist();
         // backup config
         backupConfiguration();
-        // modify config
+        // modify config - only valid configuration files can be crippled
         applyXmlTransformation(getServerConfig().xmlTransformationClass());
         // start
         startServer();
@@ -28,7 +33,15 @@ public abstract class AbstractServer implements Server {
     }
 
 
-    protected abstract void copyConfigFilesFromResourcesIfItDoesNotExist() throws IOException;
+    /**
+     * This will copy file from resources directory to $JBOSS_HOME/<profile>/configuration directory and only if
+     * this file does not exist in this configuration directory.
+     *
+     * This never overrides existing files.
+     *
+     * @throws IOException
+     */
+    protected abstract void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception;
     protected abstract void startServer() throws Exception;
 
     protected void restoreConfigIfBackupExists() throws Exception {
@@ -36,7 +49,7 @@ public abstract class AbstractServer implements Server {
             throw new Exception("Backup config is null. This can happen if this method is called before " +
                     "startServer() call. Check start() sequence that backupConfiguration() was called.");
         }
-        getOfflineManangementClient().apply(configurationFileBackup.backup());
+        getOfflineManangementClient().apply(configurationFileBackup.restore());
     }
 
     protected abstract OfflineManagementClient getOfflineManangementClient() throws Exception;
@@ -48,13 +61,24 @@ public abstract class AbstractServer implements Server {
         getOfflineManangementClient().apply(configurationFileBackup.backup());
     }
 
+    /**
+     * Cripples config file only if config file had correct syntax.
+     *
+     * IT THROWS EXCEPTION IF CONFIG FILE IS NOT XML VALID.
+     *
+     * @param xmlTransformationClass
+     * @throws Exception if file not xml valid
+     */
     protected void applyXmlTransformation(Class xmlTransformationClass) throws Exception {
+        if (DoNothing.class.equals(xmlTransformationClass)) {
+            return;
+        }
         getOfflineManangementClient().apply(GroovyXmlTransform.of(xmlTransformationClass).build());
     }
 
     /**
      *
-     * @return returns search calling stackstrace for @ServerConfig annotation and returns it, returns null if there is none
+     * @return returns Search stackstrace for @ServerConfig annotation and return it, returns null if there is none
      */
     static ServerConfig getServerConfig() {
         Throwable t = new Throwable();
@@ -78,6 +102,7 @@ public abstract class AbstractServer implements Server {
         }
         return serverConfig;
     }
+
 
 
 }

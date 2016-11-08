@@ -4,12 +4,6 @@ import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineOptions;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +19,6 @@ public class StandaloneServer extends AbstractServer {
     }
 
     protected void startServer() throws Exception {
-
         ServerConfig serverConfig = getServerConfig();
         Map<String, String> containerProperties = new HashMap<>();
         if (serverConfig != null) {
@@ -50,12 +43,17 @@ public class StandaloneServer extends AbstractServer {
 
     @Override
     protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception {
-        new FileUtils().copyFileFromResourcesToServerIfItDoesNotExist(getServerConfig().configuration());
+        new FileUtils().copyFileFromResourcesToServer(STANDALONE_RESOURCES_DIRECTORY + getServerConfig().configuration(), PATH_TO_STANDALONE_DIRECTORY, false);
     }
 
     @Override
     public void stop() {
         controller.stop(TestBase.STANDALONE_ARQUILLIAN_CONTAINER);
+    }
+
+    protected void copyLoggingPropertiesToConfiguration() throws Exception {
+        String loggingPropertiesInResources = STANDALONE_RESOURCES_DIRECTORY + LOGGING_PROPERTIES_FILE_NAME;
+        new FileUtils().copyFileFromResourcesToServer(loggingPropertiesInResources, PATH_TO_STANDALONE_DIRECTORY, true);
     }
 
 }

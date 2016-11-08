@@ -3,7 +3,7 @@
             xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
     <container qualifier="jboss" default="true" mode="manual">
-        <configuration>
+        <configuration> <!-- do not set vmArguments here - check StandaloneServer.java -->
             <property name="jbossHome">${jboss.home}</property>
             <property name="serverConfig">standalone-full-ha.xml</property>
             <property name="managementAddress">127.0.0.1</property>
@@ -14,15 +14,13 @@
     </container>
 
     <container qualifier="jboss-domain" mode="manual">
-        <configuration>
+        <configuration> <!-- do not set vmArguments here - check DomainServer.java -->
             <property name="containerModeMap">.*=custom</property> <!-- grrr! -->
-
             <property name="jbossHome">${jboss.home}</property>
             <property name="domainConfig">domain.xml</property>
             <property name="hostConfig">host.xml</property>
             <property name="managementAddress">127.0.0.1</property>
             <property name="managementPort">9990</property>
-
             <property name="waitForPorts">9990</property>
             <property name="waitForPortsTimeoutInSeconds">10</property>
         </configuration>

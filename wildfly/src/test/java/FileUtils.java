@@ -1,9 +1,12 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Scanner;
 
 /**
  * Utility class for copying files.
@@ -12,41 +15,48 @@ import java.nio.file.StandardCopyOption;
  */
 public class FileUtils {
 
-    public void copyFileFromResourcesToServerIfItDoesNotExist(String fileToCopy) throws Exception {
-        if (fileToCopy == null || "".equals(fileToCopy)) {
+    public void copyFileFromResourcesToServer(String resourceFile, String targetDirectory, boolean override) throws Exception {
+        if (resourceFile == null || "".equals(resourceFile)) {
             return;
         }
 
-        Path targetPath = Paths.get(Server.JBOSS_HOME, OperatingMode.isDomain() ? Server.DOMAIN_DIRECTORY : Server.STANDALONE_DIRECTORY, "configuration", fileToCopy);
-        if (Files.exists(targetPath)) {
+        Path sourcePath = getResourceFile(resourceFile);
+        if (sourcePath == null) {
+            throw new Exception("Resource file " + resourceFile + " does not exist.");
+        }
+
+        Path targetPath = Paths.get(targetDirectory, sourcePath.getFileName().toString());
+        if (Files.exists(targetPath) && !override) {
             // file already exists in config directory so do nothing
             return;
         }
 
-        // this will throw exception because we know that such does not exist anywhere - in resources
-        // and $JBOSS_HOME/standalone|domain/configuration directory
-        Path sourcePath = getResourceFile(fileToCopy);
-        if (sourcePath == null) {
-            throw new Exception("Configuration file " + fileToCopy + " does not exist.");
-        }
-
-        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING); // we do not replace but there is no other option
+        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private Path getResourceFile(String file) {
-
         ClassLoader classLoader = getClass().getClassLoader();
-        URL url = null;
-        if (OperatingMode.isDomain()) {
-            url = classLoader.getResource("examples/domain/" + file);
-        } else {
-            url = classLoader.getResource("examples/standalone/" + file);
-        }
-
+        URL url = classLoader.getResource(file);
         if (url == null) {
             return null;
         } else {
             return Paths.get(url.getPath());
+        }
+    }
+
+    public static String readFile(String path, Charset encoding) throws IOException {
+        File file = new File(path);
+        StringBuilder fileContents = new StringBuilder((int)file.length());
+        Scanner scanner = new Scanner(file);
+        String lineSeparator = System.getProperty("line.separator");
+
+        try {
+            while(scanner.hasNextLine()) {
+                fileContents.append(scanner.nextLine() + lineSeparator);
+            }
+            return fileContents.toString();
+        } finally {
+            scanner.close();
         }
     }
 

@@ -4,11 +4,6 @@ import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineOptions;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,13 +30,14 @@ public class ManagedDomain extends AbstractServer {
             containerProperties.put("serverConfig", DEFAULT_SERVER_CONFIG);
             containerProperties.put("hostConfig", DEFAULT_HOST_CONFIG);
         }
+
         controller.start(TestBase.DOMAIN_ARQUILLIAN_CONTAINER, containerProperties);
     }
 
     @Override
     protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception {
-        new FileUtils().copyFileFromResourcesToServerIfItDoesNotExist(getServerConfig().configuration());
-        new FileUtils().copyFileFromResourcesToServerIfItDoesNotExist(getServerConfig().hostConfig());
+        new FileUtils().copyFileFromResourcesToServer(DOMAIN_RESOURCES_DIRECTORY + getServerConfig().configuration(), PATH_TO_DOMAIN_DIRECTORY, false);
+        new FileUtils().copyFileFromResourcesToServer(DOMAIN_RESOURCES_DIRECTORY + getServerConfig().hostConfig(), PATH_TO_DOMAIN_DIRECTORY, false);
     }
 
 
@@ -58,5 +54,14 @@ public class ManagedDomain extends AbstractServer {
     @Override
     public void stop()  {
         controller.stop(TestBase.DOMAIN_ARQUILLIAN_CONTAINER);
+    }
+
+    /**
+     * Copies logging.properties which will log ERROR messages to $JBOSS_HOME/bin/errors.log file
+     * @throws Exception
+     */
+    protected void copyLoggingPropertiesToConfiguration() throws Exception {
+        String loggingPropertiesInResources = DOMAIN_RESOURCES_DIRECTORY + LOGGING_PROPERTIES_FILE_NAME;
+        new FileUtils().copyFileFromResourcesToServer(loggingPropertiesInResources, PATH_TO_DOMAIN_DIRECTORY, true);
     }
 }

@@ -1,3 +1,20 @@
+/*
+ * Copyright 2016 Red Hat, Inc, and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import org.junit.Assert;
 import org.wildfly.extras.creaper.commands.foundation.offline.ConfigurationFileBackup;
 import org.wildfly.extras.creaper.commands.foundation.offline.xml.GroovyXmlTransform;
@@ -6,15 +23,9 @@ import transformations.DoNothing;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
-/**
- * Created by mnovak on 10/24/16.
- */
 public abstract class AbstractServer implements Server {
 
     protected ConfigurationFileBackup configurationFileBackup = new ConfigurationFileBackup();;
@@ -53,14 +64,6 @@ public abstract class AbstractServer implements Server {
     }
 
     @Override
-    public void archiveLogs() {
-        // create directory with name of the test
-
-
-        // copy there all server.log files for standalone or domain/log/host-controller.log for domain
-    }
-
-    @Override
     public Path getServerLog() {
         Path pathToLog = null;
         if (OperatingMode.isDomain())   {
@@ -73,7 +76,7 @@ public abstract class AbstractServer implements Server {
 
     @Override
     public String getErrorMessageFromServerStart() throws Exception {
-        return FileUtils.readFile(Paths.get("errors.log").toString(), StandardCharsets.UTF_8);
+        return FileUtils.readFile(Paths.get("errors.log").toString());
     }
 
 

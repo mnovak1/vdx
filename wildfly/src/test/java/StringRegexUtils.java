@@ -27,15 +27,15 @@ public class StringRegexUtils {
         return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
     }
 
-    public static String surroundRegexBy(String regex, String surroundingString) {
+    public static String surroundStringBy(String regex, String surroundingString) {
         return surroundingString + regex + surroundingString;
     }
 
     public static String escapeSpecialRegexCharsAndSurroundBy(String regex, String surroundingString) {
-        return surroundRegexBy(escapeSpecialRegexChars(regex), surroundingString);
+        return surroundStringBy(escapeSpecialRegexChars(regex), surroundingString);
     }
 
-    public static List<String> convertStringLinesToRegexs(String text) {
+    public static List<String> addLinesToListAndEscapeRegexChars(String text) {
         String lines[] = text.split("\\r?\\n");
         List<String> regexs = new ArrayList<>();
         for (String regex : lines) {
@@ -44,24 +44,39 @@ public class StringRegexUtils {
         return regexs;
     }
 
+    public static String convertStringLinesToOneRegex(String text) {
+        // first make regex from each line
+        List<String> regexs = addLinesToListAndEscapeRegexChars(text);
+        // now join them all together creating one big regex
+        StringBuilder bigRegex = new StringBuilder();
+        for (String regex : regexs)   {
+            bigRegex.append(regex);
+        }
+        String bigString = bigRegex.toString();
+
+        // remove multiple .* from it
+        bigString = bigString.replaceAll("[\\.\\*]+", "\\.\\*");
+        return bigString;
+    }
+
     public static String removeLineNumbersWithDoubleDotFromString(String text) {
         return text.replaceAll(".*[0-9]+:", "");
     }
 
-//    // just for fast tries
-//    public static void main(String[] args)  {
-//        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha-to-cripple.xml ================\n" +
-//                "\n" +
-//                "  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><server xmlns=\"urn:jboss:domain:5.0\">\n" +
-//                "  2:   <extensions>\n" +
-//                "  3:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-//                "                    ^^^^ 'modules' isn't an allowed attribute for the 'extension' element\n" +
-//                "                         Attributes allowed here are: module\n" +
-//                "                         Did you mean 'module'?\n" +
-//                "\n" +
-//                "  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-//                "  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-//                "  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
-//        System.out.println(removeLineNumbersWithDoubleDotFromString(expectedErrorMessage));
-//    }
+    // just for fast tries
+    public static void main(String[] args)  {
+        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha-to-cripple.xml ================\n" +
+                "\n" +
+                "  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><server xmlns=\"urn:jboss:domain:5.0\">\n" +
+                "  2:   <extensions>\n" +
+                "  3:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "                    ^^^^ 'modules' isn't an allowed attribute for the 'extension' element\n" +
+                "                         Attributes allowed here are: module\n" +
+                "                         Did you mean 'module'?\n" +
+                "\n" +
+                "  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
+        System.out.println(convertStringLinesToOneRegex(expectedErrorMessage));
+    }
 }

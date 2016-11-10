@@ -82,7 +82,9 @@ public class TestBase {
                 "  126: </job-repository>\n" +
                 "  127: <thread-pool name=\"batch\">\n";
 
-        assertExpectedError(StringRegexUtils.convertStringLinesToRegexs(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
+        assertExpectedError(StringRegexUtils.addLinesToListAndEscapeRegexChars(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
+                container().getErrorMessageFromServerStart());
+        assertExpectedError(StringRegexUtils.convertStringLinesToOneRegex(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
                 container().getErrorMessageFromServerStart());
     }
 
@@ -105,7 +107,7 @@ public class TestBase {
                 "  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
                 "  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
 
-        assertExpectedError(StringRegexUtils.convertStringLinesToRegexs(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
+        assertExpectedError(StringRegexUtils.addLinesToListAndEscapeRegexChars(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
                 container().getErrorMessageFromServerStart());
     }
 
@@ -131,12 +133,13 @@ public class TestBase {
                 " - server > profile > subsystem urn:jboss:domain:resource-adapters:4.0 > resource-adapters > resource-adapter\n" +
                 " - server > profile > subsystem urn:jboss:domain:resource-adapters:4.0 > resource-adapters > resource-adapter > module\n";
 
-        assertExpectedError(StringRegexUtils.convertStringLinesToRegexs(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
+        assertExpectedError(StringRegexUtils.addLinesToListAndEscapeRegexChars(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
                 container().getErrorMessageFromServerStart());
     }
 
     /**
      * Asserts that error message from server contains all regular expressions. If one fails then test fails.
+     * This is useful because it can provide exact place where the pattern does not match.
      *
      * @param regexs       list of regular expressions
      * @param errorMessage error message

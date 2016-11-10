@@ -26,11 +26,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import transformations.AddNonExistentElementToMessagingSubsystem;
+import transformations.TypoInExtensions;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,7 +57,7 @@ public class TestBase {
     @Test
     @RunAsClient
     @ServerConfig(configuration = "duplicate-attribute.xml") //, xmlTransformationClass= TypoInExtensions.class)
-    public void test() throws Exception {
+    public void testWithExistingConfigInResources() throws Exception {
         container().tryStartAndWaitForFail();
         // assert that log contains bad message
         String expectedErrorMessage = "OPVDX001: Validation error in duplicate-attribute.xml ==========================\n" +
@@ -81,7 +82,57 @@ public class TestBase {
                 "  126: </job-repository>\n" +
                 "  127: <thread-pool name=\"batch\">\n";
 
-        assertExpectedError(RegexUtils.convertStringLinesToRegexs(expectedErrorMessage), container().getErrorMessageFromServerStart());
+        assertExpectedError(StringRegexUtils.convertStringLinesToRegexs(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
+                container().getErrorMessageFromServerStart());
+    }
+
+    @Test
+    @RunAsClient
+    @ServerConfig(configuration = "standalone-full-ha-to-cripple.xml", xmlTransformationClass= TypoInExtensions.class)
+    public void testWithDynamicCripplingOfXmlWithExistingConfigInResources() throws Exception {
+        container().tryStartAndWaitForFail();
+        // assert that log contains bad message
+        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha-to-cripple.xml ================\n" +
+                "\n" +
+                "  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><server xmlns=\"urn:jboss:domain:5.0\">\n" +
+                "  2:   <extensions>\n" +
+                "  3:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "                    ^^^^ 'modules' isn't an allowed attribute for the 'extension' element\n" +
+                "                         Attributes allowed here are: module\n" +
+                "                         Did you mean 'module'?\n" +
+                "\n" +
+                "  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
+
+        assertExpectedError(StringRegexUtils.convertStringLinesToRegexs(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
+                container().getErrorMessageFromServerStart());
+    }
+
+    @Test
+    @RunAsClient
+    @ServerConfig(configuration = "standalone-full-ha.xml", xmlTransformationClass= AddNonExistentElementToMessagingSubsystem.class)
+    public void testWithDynamicCrippling() throws Exception {
+        container().tryStartAndWaitForFail();
+        // assert that log contains bad message
+        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha.xml ===========================\n" +
+                "\n" +
+                "  370: <subsystem xmlns=\"urn:jboss:domain:messaging-activemq:1.1\">\n" +
+                "  371:   <server name=\"default\">\n" +
+                "  372:     <cluster id=\"3\"/>\n" +
+                "                    ^^^^ 'id' isn't an allowed attribute for the 'cluster' element\n" +
+                "                         Attributes allowed here are: password, user\n" +
+                "\n" +
+                "  373:     <journal min-files=\"10\" compact-min-files=\"0\" type=\"ASYNCIO\"/>\n" +
+                "  374:     <security enabled=\"false\"/>\n" +
+                "  375:     <security-setting name=\"#\">\n" +
+                "\n" +
+                " 'id' is allowed on elements: \n" +
+                " - server > profile > subsystem urn:jboss:domain:resource-adapters:4.0 > resource-adapters > resource-adapter\n" +
+                " - server > profile > subsystem urn:jboss:domain:resource-adapters:4.0 > resource-adapters > resource-adapter > module\n";
+
+        assertExpectedError(StringRegexUtils.convertStringLinesToRegexs(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
+                container().getErrorMessageFromServerStart());
     }
 
     /**
@@ -125,10 +176,10 @@ public class TestBase {
     public void archiveServerLog() throws Exception {
         System.out.println("----------------------------------------- Stop " + this.getClass().getSimpleName()
                 + " - " + testName.getMethodName() + " -----------------------------------------");
-        archiveServerLogs(testDirectory);
+        archiveServerLogAndDeleteIt(testDirectory);
     }
 
-    protected void archiveServerLogs(Path pathToArchiveDirectory) throws Exception {
+    protected void archiveServerLogAndDeleteIt(Path pathToArchiveDirectory) throws Exception {
         // create directory with name of the test in target directory
         File archiveDirectory = pathToArchiveDirectory.toFile();
         if (!archiveDirectory.exists()) {
@@ -136,5 +187,6 @@ public class TestBase {
         }
         // copy server.log files for standalone or host-controller.log for domain
         new FileUtils().copyFileToDirectory(container().getServerLog(), archiveDirectory.toPath());
+        container().getServerLog().toFile().delete();
     }
 }

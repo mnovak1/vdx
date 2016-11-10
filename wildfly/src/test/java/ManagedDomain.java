@@ -21,6 +21,8 @@ import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineOptions;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +33,7 @@ public class ManagedDomain extends AbstractServer {
 
     ContainerController controller;
 
-    protected ManagedDomain(ContainerController controller)    {
+    protected ManagedDomain(ContainerController controller) {
         this.controller = controller;
     }
 
@@ -52,11 +54,19 @@ public class ManagedDomain extends AbstractServer {
     }
 
     @Override
-    protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception {
-        new FileUtils().copyFileFromResourcesToServer(DOMAIN_RESOURCES_DIRECTORY + getServerConfig().configuration(), PATH_TO_DOMAIN_DIRECTORY, false);
-        new FileUtils().copyFileFromResourcesToServer(DOMAIN_RESOURCES_DIRECTORY + getServerConfig().hostConfig(), PATH_TO_DOMAIN_DIRECTORY, false);
+    public Path getServerLog() {
+        return Paths.get(JBOSS_HOME, DOMAIN_DIRECTORY, "log", "host-controller.log");
     }
 
+    @Override
+    protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception {
+        if (!FileUtils.isPathExists(Paths.get(PATH_TO_DOMAIN_DIRECTORY, getServerConfig().configuration()))) {
+            new FileUtils().copyFileFromResourcesToServer(DOMAIN_RESOURCES_DIRECTORY + getServerConfig().configuration(), PATH_TO_DOMAIN_DIRECTORY, false);
+        }
+        if (!FileUtils.isPathExists(Paths.get(PATH_TO_DOMAIN_DIRECTORY, getServerConfig().hostConfig()))) {
+            new FileUtils().copyFileFromResourcesToServer(DOMAIN_RESOURCES_DIRECTORY + getServerConfig().hostConfig(), PATH_TO_DOMAIN_DIRECTORY, false);
+        }
+    }
 
 
     @Override
@@ -69,12 +79,13 @@ public class ManagedDomain extends AbstractServer {
     }
 
     @Override
-    public void stop()  {
+    public void stop() {
         controller.stop(TestBase.DOMAIN_ARQUILLIAN_CONTAINER);
     }
 
     /**
      * Copies logging.properties which will log ERROR messages to $JBOSS_HOME/bin/errors.log file
+     *
      * @throws Exception
      */
     protected void copyLoggingPropertiesToConfiguration() throws Exception {

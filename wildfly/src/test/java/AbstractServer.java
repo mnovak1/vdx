@@ -64,15 +64,7 @@ public abstract class AbstractServer implements Server {
     }
 
     @Override
-    public Path getServerLog() {
-        Path pathToLog = null;
-        if (OperatingMode.isDomain())   {
-            pathToLog = Paths.get(JBOSS_HOME, DOMAIN_DIRECTORY, "log", "host-controller.log");
-        } else {
-            pathToLog = Paths.get(JBOSS_HOME, STANDALONE_DIRECTORY, "log", "server.log");
-        }
-        return pathToLog;
-    }
+    public abstract Path getServerLog();
 
     @Override
     public String getErrorMessageFromServerStart() throws Exception {

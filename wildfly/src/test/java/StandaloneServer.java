@@ -21,6 +21,8 @@ import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineOptions;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,8 +61,15 @@ public class StandaloneServer extends AbstractServer {
     }
 
     @Override
+    public Path getServerLog() {
+        return Paths.get(JBOSS_HOME, STANDALONE_DIRECTORY, "log", "server.log");
+    }
+
+    @Override
     protected void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception {
-        new FileUtils().copyFileFromResourcesToServer(STANDALONE_RESOURCES_DIRECTORY + getServerConfig().configuration(), PATH_TO_STANDALONE_DIRECTORY, false);
+        if (!FileUtils.isPathExists(Paths.get(PATH_TO_STANDALONE_DIRECTORY.toString(), getServerConfig().configuration()))) {
+            new FileUtils().copyFileFromResourcesToServer(STANDALONE_RESOURCES_DIRECTORY + getServerConfig().configuration(), PATH_TO_STANDALONE_DIRECTORY, false);
+        }
     }
 
     @Override

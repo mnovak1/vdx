@@ -16,11 +16,10 @@
  */
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class RegexUtils {
+public class StringRegexUtils {
 
     private static Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]", Pattern.DOTALL);
 
@@ -44,4 +43,25 @@ public class RegexUtils {
         }
         return regexs;
     }
+
+    public static String removeLineNumbersWithDoubleDotFromString(String text) {
+        return text.replaceAll(".*[0-9]+:", "");
+    }
+
+//    // just for fast tries
+//    public static void main(String[] args)  {
+//        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha-to-cripple.xml ================\n" +
+//                "\n" +
+//                "  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><server xmlns=\"urn:jboss:domain:5.0\">\n" +
+//                "  2:   <extensions>\n" +
+//                "  3:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+//                "                    ^^^^ 'modules' isn't an allowed attribute for the 'extension' element\n" +
+//                "                         Attributes allowed here are: module\n" +
+//                "                         Did you mean 'module'?\n" +
+//                "\n" +
+//                "  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+//                "  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+//                "  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
+//        System.out.println(removeLineNumbersWithDoubleDotFromString(expectedErrorMessage));
+//    }
 }

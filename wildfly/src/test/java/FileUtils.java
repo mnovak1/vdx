@@ -81,6 +81,10 @@ public class FileUtils {
         }
     }
 
+    public static boolean isPathExists(Path path)   {
+        return path.toFile().exists();
+    }
+
     // just for local testing
 //    public static void main(String[] args) {
 //        System.out.println(new FileUtils().getResourceFile("duplicaste-attribute.xml"));

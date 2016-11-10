@@ -1,5 +1,5 @@
 root.extensions.extension.replaceNode{
-    extension(modules:"org.jboss.as.clustering.infinispan"){
+    extension(modules:"org.aaajboss.as.clustering.infinispan"){
     }
 }
 

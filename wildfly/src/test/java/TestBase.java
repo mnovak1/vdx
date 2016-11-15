@@ -56,7 +56,7 @@ public class TestBase {
 
     @Test
     @RunAsClient
-    @ServerConfig(configuration = "duplicate-attribute.xml") //, xmlTransformationClass= TypoInExtensions.class)
+    @ServerConfig(configuration = "duplicate-attribute.xml")
     public void testWithExistingConfigInResources() throws Exception {
         container().tryStartAndWaitForFail();
         // assert that log contains bad message

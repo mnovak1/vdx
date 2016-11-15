@@ -68,7 +68,7 @@ public abstract class AbstractServer implements Server {
 
     @Override
     public String getErrorMessageFromServerStart() throws Exception {
-        return FileUtils.readFile(Paths.get("errors.log").toString());
+        return FileUtils.readFile(Paths.get(ERRORS_LOG_FILE_NAME).toString());
     }
 
 

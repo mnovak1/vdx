@@ -28,9 +28,6 @@ import java.util.Map;
 
 public class ManagedDomain extends AbstractServer {
 
-//    private static final String DEFAULT_VM_ARGUMENTS =  "-server -Xms64m -Xmx512m -XX:MaxMetaspaceSize=256m " +
-//            "-Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true";
-
     ContainerController controller;
 
     protected ManagedDomain(ContainerController controller) {

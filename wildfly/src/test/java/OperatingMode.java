@@ -19,6 +19,10 @@ public final class OperatingMode {
     private OperatingMode() {
     } // avoid instantiation
 
+    /**
+     *
+     * @return true if started server is in domain mode. false if it's standalone mode.
+     */
     public static boolean isDomain() {
         return Boolean.parseBoolean(System.getProperty("domain", "false"));
     }

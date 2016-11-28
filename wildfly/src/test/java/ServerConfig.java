@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
 public @interface ServerConfig {
 
     /**
-     * Specifies with which confiuguration option server will be started.
+     * Specifies with which configuration option server will be started.
      *
      * Default value for standalone mode is "standalone.xml"
      * Default value for domain mode is "domain.xml"

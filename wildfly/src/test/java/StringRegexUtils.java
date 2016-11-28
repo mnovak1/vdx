@@ -44,27 +44,50 @@ public class StringRegexUtils {
         return regexs;
     }
 
+    /**
+     * It will take multiline text and escape all characters which are used in Java Pattern, Then it will try to create
+     *  pattern which matches the multiline text.
+     * @param text multiline text which should be converted to regex/pattern which matches the text
+     * @return
+     */
     public static String convertStringLinesToOneRegex(String text) {
         // first make regex from each line
         List<String> regexs = addLinesToListAndEscapeRegexChars(text);
         // now join them all together creating one big regex
         StringBuilder bigRegex = new StringBuilder();
-        for (String regex : regexs)   {
+        for (String regex : regexs) {
             bigRegex.append(regex);
         }
         String bigString = bigRegex.toString();
 
         // remove multiple .* from it
-        bigString = bigString.replaceAll("[\\.\\*]+", "\\.\\*");
+        bigString = removeMultipleOccurencesOfMatchAnything(bigString);
         return bigString;
     }
 
+    /**
+     * This will remove line numbers from text. For example for input:
+     *   3:     <extension modules="org.aaajboss.as.clustering.infinispan"/>
+     *   it will return:
+     *          <extension modules="org.aaajboss.as.clustering.infinispan"/>
+     *
+     * @param text
+     * @return
+     */
     public static String removeLineNumbersWithDoubleDotFromString(String text) {
         return text.replaceAll(".*[0-9]+:", "");
     }
 
+    /**
+     * Remove multiple .* from it, there is catch that "\..*" will be replaced as "\.*" which is wrong. Thus there is
+     * one more replace of "\.*" to be ".*"
+     */
+    public static String removeMultipleOccurencesOfMatchAnything(String text) {
+        return text.replaceAll("[\\.\\*]+", "\\.\\*").replaceAll("[\\\\.\\*]+", "\\.\\*");
+    }
+
     // just for fast tries
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha-to-cripple.xml ================\n" +
                 "\n" +
                 "  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><server xmlns=\"urn:jboss:domain:5.0\">\n" +
@@ -76,7 +99,7 @@ public class StringRegexUtils {
                 "\n" +
                 "  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
                 "  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-                "  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
+                "  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>.\n";
         System.out.println(convertStringLinesToOneRegex(expectedErrorMessage));
     }
 }

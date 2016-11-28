@@ -56,7 +56,7 @@ public abstract class AbstractServer implements Server {
             Assert.fail("Server started succesfully - probably xml was not invalidated/crippled correctly.");
 
         } catch (Exception ex)  {
-            System.out.println("Start of the server failed.");
+            System.out.println("Start of the server failed. This is expected.");
         } finally {
             // restore original config if it exists
             restoreConfigIfBackupExists();
@@ -88,6 +88,7 @@ public abstract class AbstractServer implements Server {
             throw new Exception("Backup config is null. This can happen if this method is called before " +
                     "startServer() call. Check tryStartAndWaitForFail() sequence that backupConfiguration() was called.");
         }
+        System.out.println("Restoring server configuration. Configuration to be restored " +  getServerConfig());
         getOfflineManangementClient().apply(configurationFileBackup.restore());
     }
 

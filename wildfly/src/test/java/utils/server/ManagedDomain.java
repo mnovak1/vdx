@@ -15,10 +15,14 @@
  *
  */
 
+package utils.server;
+
 import org.jboss.arquillian.container.test.api.ContainerController;
 import org.wildfly.extras.creaper.core.ManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import org.wildfly.extras.creaper.core.offline.OfflineOptions;
+import tests.TestBase;
+import utils.FileUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -46,7 +50,6 @@ public class ManagedDomain extends AbstractServer {
             containerProperties.put("serverConfig", DEFAULT_SERVER_CONFIG);
             containerProperties.put("hostConfig", DEFAULT_HOST_CONFIG);
         }
-
         controller.start(TestBase.DOMAIN_ARQUILLIAN_CONTAINER, containerProperties);
     }
 
@@ -70,7 +73,7 @@ public class ManagedDomain extends AbstractServer {
     protected OfflineManagementClient getOfflineManangementClient() throws Exception {
         return ManagementClient.offline(OfflineOptions
                 .domain()
-                .forProfile("default").build().baseDirectory(new File(JBOSS_HOME))
+                .forProfile("default").build().rootDirectory(new File(JBOSS_HOME))
                 .configurationFile(getServerConfig() == null ? DEFAULT_SERVER_CONFIG : getServerConfig().configuration())
                 .build());
     }

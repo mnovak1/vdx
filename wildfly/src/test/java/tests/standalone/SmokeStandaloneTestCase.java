@@ -15,15 +15,20 @@
  *
  */
 
+package tests.standalone;
+
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.junit.Test;
+import tests.TestBase;
 import transformations.AddNonExistentElementToMessagingSubsystem;
 import transformations.TypoInExtensions;
+import utils.StringRegexUtils;
+import utils.server.ServerConfig;
 
 /**
  * Smoke test case - it tests whether Wildlfy/EAP test automation is working and basic VDX functionality.
  */
-public class SmokeStandaloneTestCase extends TestBase {
+public class SmokeStandaloneTestCase extends StandaloneTestBase {
 
     @Test
     @RunAsClient
@@ -67,7 +72,7 @@ public class SmokeStandaloneTestCase extends TestBase {
 
     @Test
     @RunAsClient
-    @ServerConfig(configuration = "standalone-full-ha-to-cripple.xml", xmlTransformationClass= TypoInExtensions.class)
+    @ServerConfig(configuration = "standalone-full-ha-to-cripple.xml", xmlTransformationClass = TypoInExtensions.class)
     public void testWithDynamicCripplingOfXmlWithExistingConfigInResources() throws Exception {
         container().tryStartAndWaitForFail();
         // assert that log contains bad message
@@ -98,7 +103,7 @@ public class SmokeStandaloneTestCase extends TestBase {
 
     @Test
     @RunAsClient
-    @ServerConfig(configuration = "standalone-full-ha.xml", xmlTransformationClass= AddNonExistentElementToMessagingSubsystem.class)
+    @ServerConfig(configuration = "standalone-full-ha.xml", xmlTransformationClass = AddNonExistentElementToMessagingSubsystem.class)
     public void testWithDynamicCrippling() throws Exception {
         container().tryStartAndWaitForFail();
         // assert that log contains bad message

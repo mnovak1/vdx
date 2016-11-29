@@ -15,11 +15,15 @@
  *
  */
 
+package utils.server;
+
 import org.junit.Assert;
 import org.wildfly.extras.creaper.commands.foundation.offline.ConfigurationFileBackup;
 import org.wildfly.extras.creaper.commands.foundation.offline.xml.GroovyXmlTransform;
 import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import transformations.DoNothing;
+import utils.FileUtils;
+import utils.OperatingMode;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -28,7 +32,8 @@ import java.nio.file.Paths;
 
 public abstract class AbstractServer implements Server {
 
-    protected ConfigurationFileBackup configurationFileBackup = new ConfigurationFileBackup();;
+    protected ConfigurationFileBackup configurationFileBackup = new ConfigurationFileBackup();
+    ;
 
     @Override
     public void tryStartAndWaitForFail() throws Exception {
@@ -55,7 +60,7 @@ public abstract class AbstractServer implements Server {
             // fail the test if server starts
             Assert.fail("Server started succesfully - probably xml was not invalidated/crippled correctly.");
 
-        } catch (Exception ex)  {
+        } catch (Exception ex) {
             System.out.println("Start of the server failed. This is expected.");
         } finally {
             // restore original config if it exists
@@ -75,12 +80,13 @@ public abstract class AbstractServer implements Server {
     /**
      * This will copy file from resources directory to $JBOSS_HOME/<profile>/configuration directory and only if
      * this file does not exist in this configuration directory.
-     *
+     * <p>
      * This never overrides existing files.
      *
      * @throws IOException
      */
     protected abstract void copyConfigFilesFromResourcesIfItDoesNotExist() throws Exception;
+
     protected abstract void startServer() throws Exception;
 
     protected void restoreConfigIfBackupExists() throws Exception {
@@ -88,13 +94,14 @@ public abstract class AbstractServer implements Server {
             throw new Exception("Backup config is null. This can happen if this method is called before " +
                     "startServer() call. Check tryStartAndWaitForFail() sequence that backupConfiguration() was called.");
         }
-        System.out.println("Restoring server configuration. Configuration to be restored " +  getServerConfig());
+        System.out.println("Restoring server configuration. Configuration to be restored " + getServerConfig());
         getOfflineManangementClient().apply(configurationFileBackup.restore());
     }
 
     protected abstract OfflineManagementClient getOfflineManangementClient() throws Exception;
 
     protected void backupConfiguration() throws Exception {
+        // todo creaper most likely does not backup/restore host.xml - double check this
         // destroy any existing backup config
         getOfflineManangementClient().apply(configurationFileBackup.destroy());
         // backup any existing config
@@ -103,13 +110,14 @@ public abstract class AbstractServer implements Server {
 
     /**
      * Copies logging.properties which will log ERROR messages to $JBOSS_HOME/bin/errors.log file
+     *
      * @throws Exception
      */
     protected abstract void copyLoggingPropertiesToConfiguration() throws Exception;
 
     /**
      * Cripples xml config file only if config file had valid syntax. It cannot cripple invalid xml file.
-     *
+     * <p>
      * IT THROWS EXCEPTION IF CONFIG FILE IS NOT XML VALID.
      *
      * @param xmlTransformationClass
@@ -123,7 +131,6 @@ public abstract class AbstractServer implements Server {
     }
 
     /**
-     *
      * @return returns Search stacktrace for @ServerConfig annotation and return it, returns null if there is none
      */
     static ServerConfig getServerConfig() {
@@ -139,7 +146,7 @@ public abstract class AbstractServer implements Server {
                 callerMethodName = elements[level].getMethodName();
                 Method method = Class.forName(callerClassName).getMethod(callerMethodName);
                 serverConfig = method.getAnnotation(ServerConfig.class);
-                if (serverConfig != null)   {
+                if (serverConfig != null) {
                     break;
                 }
             } catch (Exception e) {
@@ -148,7 +155,6 @@ public abstract class AbstractServer implements Server {
         }
         return serverConfig;
     }
-
 
 
 }

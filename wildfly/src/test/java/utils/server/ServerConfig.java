@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2016 Red Hat, Inc, and individual contributors.
  *
@@ -15,6 +14,8 @@
  * limitations under the License.
  *
  */
+
+package utils.server;
 
 import transformations.DoNothing;
 

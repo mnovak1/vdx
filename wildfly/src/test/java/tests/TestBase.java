@@ -15,8 +15,7 @@
  *
  */
 
-import org.jboss.arquillian.container.test.api.ContainerController;
-import org.jboss.arquillian.container.test.api.RunAsClient;
+package tests;import org.jboss.arquillian.container.test.api.ContainerController;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.After;
@@ -26,8 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
-import transformations.AddNonExistentElementToMessagingSubsystem;
-import transformations.TypoInExtensions;
+import utils.FileUtils;
+import utils.server.Server;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -36,11 +35,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Do not inherit from this class as it's common for standalone and domain tests! For standalone tests inherit from
+ * @see tests.standalone.StandaloneTestBase and for domain tests inherit from @see tests.domain.DomainTestBase.
+ */
 @RunWith(Arquillian.class)
 public class TestBase {
 
-    protected static final String STANDALONE_ARQUILLIAN_CONTAINER = "jboss";
-    protected static final String DOMAIN_ARQUILLIAN_CONTAINER = "jboss-domain";
+    public static final String STANDALONE_ARQUILLIAN_CONTAINER = "jboss";
+    public static final String DOMAIN_ARQUILLIAN_CONTAINER = "jboss-domain";
 
     @ArquillianResource
     private ContainerController controller;
@@ -53,8 +56,6 @@ public class TestBase {
     public Server container() {
         return Server.create(controller);
     }
-
-
 
     /**
      * Asserts that error message from server contains all regular expressions. If one fails then test fails.
@@ -108,7 +109,16 @@ public class TestBase {
             archiveDirectory.mkdirs();
         }
         // copy server.log files for standalone or host-controller.log for domain
-        new FileUtils().copyFileToDirectory(container().getServerLog(), archiveDirectory.toPath());
+        try {
+            new FileUtils().copyFileToDirectory(container().getServerLog(), archiveDirectory.toPath());
+        } catch (Exception ex)  {
+            ex.printStackTrace();
+        }
         container().getServerLog().toFile().delete();
+    }
+
+    @Test
+    public void mockTest()  {
+        // ignore me, this is to prevent "java.lang.Exception: No runnable methods" thrown from junit
     }
 }

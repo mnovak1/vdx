@@ -15,7 +15,8 @@
  *
  */
 
-import org.jboss.arquillian.container.test.api.ContainerController;
+package utils.server;import org.jboss.arquillian.container.test.api.ContainerController;
+import utils.OperatingMode;
 
 import java.io.File;
 import java.nio.file.Path;

@@ -15,15 +15,15 @@
  *
  */
 
-public final class OperatingMode {
-    private OperatingMode() {
-    } // avoid instantiation
+package tests.domain;
 
-    /**
-     *
-     * @return true if started server is in domain mode. false if it's standalone mode.
-     */
-    public static boolean isDomain() {
-        return Boolean.parseBoolean(System.getProperty("domain", "false"));
-    }
+import org.junit.experimental.categories.Category;
+import tests.TestBase;
+import tests.category.DomainTests;
+
+/**
+ * Parent class for all domain tests.
+ */
+@Category(DomainTests.class)
+public class DomainTestBase extends TestBase {
 }

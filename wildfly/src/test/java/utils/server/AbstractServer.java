@@ -20,6 +20,7 @@ package utils.server;
 import org.junit.Assert;
 import org.wildfly.extras.creaper.commands.foundation.offline.ConfigurationFileBackup;
 import org.wildfly.extras.creaper.commands.foundation.offline.xml.GroovyXmlTransform;
+import org.wildfly.extras.creaper.commands.foundation.offline.xml.Subtree;
 import org.wildfly.extras.creaper.core.offline.OfflineManagementClient;
 import transformations.DoNothing;
 import utils.FileUtils;
@@ -51,7 +52,7 @@ public abstract class AbstractServer implements Server {
         backupConfiguration();
 
         // modify config - only valid configuration files can be crippled
-        applyXmlTransformation(getServerConfig().xmlTransformationClass());
+        applyXmlTransformation();
 
         try {
             // tryStartAndWaitForFail - this must throw exception due invalid xml
@@ -119,14 +120,39 @@ public abstract class AbstractServer implements Server {
      * <p>
      * IT THROWS EXCEPTION IF CONFIG FILE IS NOT XML VALID.
      *
-     * @param xmlTransformationClass
      * @throws Exception if file not xml valid
      */
-    protected void applyXmlTransformation(Class xmlTransformationClass) throws Exception {
-        if (DoNothing.class.equals(xmlTransformationClass)) {
-            return;
+    private void applyXmlTransformation() throws Exception {
+        ServerConfig serverConfig = getServerConfig();
+
+        if (serverConfig.xmlTransformationGroovy().equals("")) {
+            if (DoNothing.class.equals(serverConfig.xmlTransformationClass())) {
+                return;
+            }
+
+            getOfflineManangementClient().apply(GroovyXmlTransform.of(serverConfig.xmlTransformationClass()).build());
+
+        } else {
+
+            if (serverConfig.subtreeName().equals("")) {  // case without subtree
+                getOfflineManangementClient()
+                        .apply(GroovyXmlTransform.of(DoNothing.class, serverConfig.xmlTransformationGroovy()).build());
+            }
+            if (serverConfig.profileName().equals("")) {  // standalone case with subtree
+                getOfflineManangementClient()
+                        .apply(GroovyXmlTransform.of(DoNothing.class, serverConfig.xmlTransformationGroovy()).
+                                subtree(serverConfig.subtreeName(), Subtree.subsystem(serverConfig.subsystemName())).build());
+
+            } else {  // domain case  with subtree
+                getOfflineManangementClient()
+                        .apply(GroovyXmlTransform.of(DoNothing.class, serverConfig.xmlTransformationGroovy()).
+                                subtree(serverConfig.subtreeName(),
+                                        Subtree.subsystemInProfile(serverConfig.profileName(), serverConfig.subsystemName()))
+                                .build());
+
+            }
         }
-        getOfflineManangementClient().apply(GroovyXmlTransform.of(xmlTransformationClass).build());
+
     }
 
     /**

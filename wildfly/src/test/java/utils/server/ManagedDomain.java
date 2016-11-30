@@ -44,10 +44,10 @@ public class ManagedDomain extends AbstractServer {
         ServerConfig serverConfig = getServerConfig();
         Map<String, String> containerProperties = new HashMap<>();
         if (serverConfig != null) {
-            containerProperties.put("serverConfig", serverConfig.configuration());
+            containerProperties.put("domainConfig", serverConfig.configuration());
             containerProperties.put("hostConfig", serverConfig.hostConfig());
         } else { // if no server config was specified return arquillian to default // todo take this from arquillian.xml
-            containerProperties.put("serverConfig", DEFAULT_SERVER_CONFIG);
+            containerProperties.put("domainConfig", DEFAULT_SERVER_CONFIG);
             containerProperties.put("hostConfig", DEFAULT_HOST_CONFIG);
         }
         controller.start(TestBase.DOMAIN_ARQUILLIAN_CONTAINER, containerProperties);

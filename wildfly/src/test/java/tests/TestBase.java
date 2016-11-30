@@ -15,7 +15,10 @@
  *
  */
 
-package tests;import org.jboss.arquillian.container.test.api.ContainerController;
+package tests;
+
+import org.jboss.arquillian.container.test.api.ContainerController;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.After;
@@ -37,6 +40,7 @@ import java.util.regex.Pattern;
 
 /**
  * Do not inherit from this class as it's common for standalone and domain tests! For standalone tests inherit from
+ *
  * @see tests.standalone.StandaloneTestBase and for domain tests inherit from @see tests.domain.DomainTestBase.
  */
 @RunWith(Arquillian.class)
@@ -103,22 +107,25 @@ public class TestBase {
     }
 
     protected void archiveServerLogAndDeleteIt(Path pathToArchiveDirectory) throws Exception {
+
+        // if no log then return
+        if (!container().getServerLog().toFile().exists())   {
+            return;
+        }
+
         // create directory with name of the test in target directory
         File archiveDirectory = pathToArchiveDirectory.toFile();
         if (!archiveDirectory.exists()) {
             archiveDirectory.mkdirs();
         }
         // copy server.log files for standalone or host-controller.log for domain
-        try {
-            new FileUtils().copyFileToDirectory(container().getServerLog(), archiveDirectory.toPath());
-        } catch (Exception ex)  {
-            ex.printStackTrace();
-        }
+        new FileUtils().copyFileToDirectory(container().getServerLog(), archiveDirectory.toPath());
         container().getServerLog().toFile().delete();
     }
 
     @Test
-    public void mockTest()  {
+    @RunAsClient
+    public void mockTest() {
         // ignore me, this is to prevent "java.lang.Exception: No runnable methods" thrown from junit
     }
 }

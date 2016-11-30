@@ -35,26 +35,27 @@ public class SmokeDomainTestCase extends DomainTestBase {
     public void testWithExistingConfigInResources() throws Exception {
         container().tryStartAndWaitForFail();
         // assert that log contains bad message
-        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha-to-cripple.xml ----------------\n" +
+        String expectedErrorMessage = "OPVDX001: Validation error in duplicate-attribute.xml --------------------------\n" +
                 "|\n" +
-                "|  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><server xmlns=\"urn:jboss:domain:5.0\">\n" +
-                "|  2:   <extensions>\n" +
-                "|  3:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-                "|                    ^^^^ 'modules' isn't an allowed attribute for the 'extension' element\n" +
-                "|                         \n" +
-                "|                         Did you mean 'module'?\n" +
-                "|                         \n" +
-                "|                         Attributes allowed here are: module \n" +
+                "|  95: <job-repository name=\"in-memory\">\n" +
+                "|  96:   <jdbc data-source=\"foo\"\n" +
+                "|  97:     data-source=\"bar\"/>\n" +
+                "|          ^^^^ 'data-source' can't appear more than once on this element\n" +
                 "|\n" +
-                "|  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-                "|  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-                "|  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "|  98: </job-repository>\n" +
+                "|  99: <thread-pool name=\"batch\">\n" +
+                "| 100:     <max-threads count=\"10\"/>\n" +
                 "|\n" +
-                "| The primary underlying error message was:\n" +
-                "| > ParseError at [row,col]:[3,5]\n" +
-                "| > Message: WFLYCTL0197: Unexpected attribute 'modules' encountered\n" +
+                "| A 'data-source' attribute first appears here:\n" +
                 "|\n" +
-                "|-------------------------------------------------------------------------------\n";
+                "|  94: <default-thread-pool name=\"batch\"/>\n" +
+                "|  95: <job-repository name=\"in-memory\">\n" +
+                "|  96:   <jdbc data-source=\"foo\"\n" +
+                "|              ^^^^\n" +
+                "|\n" +
+                "|  97:     data-source=\"bar\"/>\n" +
+                "|  98: </job-repository>\n" +
+                "|  99: <thread-pool name=\"batch\">\n";
 
         assertExpectedError(StringRegexUtils.addLinesToListAndEscapeRegexChars(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
                 container().getErrorMessageFromServerStart());
@@ -64,13 +65,13 @@ public class SmokeDomainTestCase extends DomainTestBase {
 
     @Test
     @RunAsClient
-    @ServerConfig(configuration = "standalone-full-ha-to-cripple.xml", xmlTransformationClass = TypoInExtensions.class)
+    @ServerConfig(configuration = "domain-to-cripple.xml", xmlTransformationClass = TypoInExtensions.class)
     public void testWithDynamicCripplingOfXmlWithExistingConfigInResources() throws Exception {
         container().tryStartAndWaitForFail();
         // assert that log contains bad message
-        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha-to-cripple.xml ----------------\n" +
+        String expectedErrorMessage = "OPVDX001: Validation error in domain-to-cripple.xml ----------------------------\n" +
                 "|\n" +
-                "|  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><server xmlns=\"urn:jboss:domain:5.0\">\n" +
+                "|  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><domain xmlns=\"urn:jboss:domain:5.0\">\n" +
                 "|  2:   <extensions>\n" +
                 "|  3:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
                 "|                    ^^^^ 'modules' isn't an allowed attribute for the 'extension' element\n" +
@@ -81,13 +82,7 @@ public class SmokeDomainTestCase extends DomainTestBase {
                 "|\n" +
                 "|  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
                 "|  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-                "|  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
-                "|\n" +
-                "| The primary underlying error message was:\n" +
-                "| > ParseError at [row,col]:[3,5]\n" +
-                "| > Message: WFLYCTL0197: Unexpected attribute 'modules' encountered\n" +
-                "|\n" +
-                "|-------------------------------------------------------------------------------\n";
+                "|  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
 
         assertExpectedError(StringRegexUtils.addLinesToListAndEscapeRegexChars(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
                 container().getErrorMessageFromServerStart());
@@ -95,34 +90,24 @@ public class SmokeDomainTestCase extends DomainTestBase {
 
     @Test
     @RunAsClient
-    @ServerConfig(configuration = "standalone-full-ha.xml", xmlTransformationClass = AddNonExistentElementToMessagingSubsystem.class)
+    @ServerConfig(configuration = "domain.xml", xmlTransformationClass = AddNonExistentElementToMessagingSubsystem.class)
     public void testWithDynamicCrippling() throws Exception {
         container().tryStartAndWaitForFail();
         // assert that log contains bad message
-        String expectedErrorMessage = "OPVDX001: Validation error in standalone-full-ha.xml ---------------------------\n" +
+        String expectedErrorMessage = "OPVDX001: Validation error in domain-to-cripple.xml ----------------------------\n" +
                 "|\n" +
-                "|  370: <subsystem xmlns=\"urn:jboss:domain:messaging-activemq:1.1\">\n" +
-                "|  371:   <server name=\"default\">\n" +
-                "|  372:     <cluster id=\"3\"/>\n" +
-                "|                    ^^^^ 'id' isn't an allowed attribute for the 'cluster' element\n" +
+                "|  1: <?xml version=\"1.0\" encoding=\"UTF-8\"?><domain xmlns=\"urn:jboss:domain:5.0\">\n" +
+                "|  2:   <extensions>\n" +
+                "|  3:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "|                    ^^^^ 'modules' isn't an allowed attribute for the 'extension' element\n" +
                 "|                         \n" +
-                "|                         Attributes allowed here are: name, password, user \n" +
+                "|                         Did you mean 'module'?\n" +
+                "|                         \n" +
+                "|                         Attributes allowed here are: module \n" +
                 "|\n" +
-                "|  373:     <journal min-files=\"10\" compact-min-files=\"0\" type=\"ASYNCIO\"/>\n" +
-                "|  374:     <security enabled=\"false\"/>\n" +
-                "|  375:     <security-setting name=\"#\">\n" +
-                "|\n" +
-                "| 'id' is allowed on elements: \n" +
-                "| - server > profile > {urn:jboss:domain:resource-adapters:4.0}subsystem > resource-adapters > resource-adapter\n" +
-                "| - server > profile > {urn:jboss:domain:resource-adapters:4.0}subsystem > resource-adapters > resource-adapter > module\n" +
-                "|\n" +
-                "|\n" +
-                "| The primary underlying error message was:\n" +
-                "| > ParseError at [row,col]:[372,9]\n" +
-                "| > Message: WFLYCTL0376: Unexpected attribute 'id' encountered. Valid\n" +
-                "| >   attributes are: 'user, password, name'\n" +
-                "|\n" +
-                "|-------------------------------------------------------------------------------";
+                "|  4:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "|  5:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n" +
+                "|  6:     <extension modules=\"org.aaajboss.as.clustering.infinispan\"/>\n";
 
         assertExpectedError(StringRegexUtils.addLinesToListAndEscapeRegexChars(StringRegexUtils.removeLineNumbersWithDoubleDotFromString(expectedErrorMessage)),
                 container().getErrorMessageFromServerStart());

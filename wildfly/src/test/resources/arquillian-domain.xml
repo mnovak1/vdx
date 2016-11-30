@@ -18,8 +18,7 @@
             <property name="hostConfig">host.xml</property>
             <property name="managementAddress">127.0.0.1</property>
             <property name="managementPort">9990</property>
-            <property name="waitForPorts">9990</property>
-            <property name="waitForPortsTimeoutInSeconds">8</property>
+            <property name="outputToConsole">true</property>
         </configuration>
     </container>
 </arquillian>

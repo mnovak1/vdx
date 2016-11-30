@@ -76,7 +76,6 @@ public abstract class AbstractServer implements Server {
         return FileUtils.readFile(Paths.get(ERRORS_LOG_FILE_NAME).toString());
     }
 
-
     /**
      * This will copy file from resources directory to $JBOSS_HOME/<profile>/configuration directory and only if
      * this file does not exist in this configuration directory.

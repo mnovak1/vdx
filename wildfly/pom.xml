@@ -241,11 +241,8 @@
                             </classpathDependencyExcludes>
                             <systemPropertyVariables>
                                 <jboss.home>${jboss.home}</jboss.home>
+                                <arquillian.xml>arquillian-domain.xml</arquillian.xml>
                             </systemPropertyVariables>
-                            <systemProperties>
-                                <name>arquillian.xml</name>
-                                <value>arquillian-domain.xml</value>
-                            </systemProperties>
                         </configuration>
                     </plugin>
                 </plugins>

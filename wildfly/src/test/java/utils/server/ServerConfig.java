@@ -25,22 +25,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
  * Annotation which specifies server config file from resources directory with which server should be started.
- *
+ * <p>
  * If domain is tested then it allows to specify host.xml file to be used. Otherwise it's ignored.
- *
+ * <p>
  * Used during tryStartAndWaitForFail of @see Server#tryStartAndWaitForFail()
- *
+ * <p>
  * Created by mnovak on 10/24/16.
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ServerConfig {
+@Target(ElementType.METHOD) @Retention(RetentionPolicy.RUNTIME) public @interface ServerConfig {
 
     /**
      * Specifies with which configuration option server will be started.
-     *
+     * <p>
      * Default value for standalone mode is "standalone.xml"
      * Default value for domain mode is "domain.xml"
      */
@@ -48,11 +45,31 @@ public @interface ServerConfig {
 
     /**
      * Optional - will be applied only in domain mode. Same as --host-config=...
-     *
+     * <p>
      * Default is host.xml
      */
     String hostConfig() default "host.xml";
 
-    Class xmlTransformationClass() default DoNothing.class;
+    @Deprecated Class xmlTransformationClass() default DoNothing.class;
 
+    String xmlTransformationGroovy() default "fooBar.groovy";
+
+    //for things like subtree("webservices", Subtree.subsystemInProfile("profileXY", "webservices")).build());
+
+    /**
+     * subtree name used in .groovy file
+     */
+    String subtreeName() default "";
+
+    // mapping to server configuration .xml file
+
+    /**
+     * server's subsystem
+     */
+    String subsystemName() default "";
+
+    /**
+     * server's profile, applicable only for domain
+     */
+    String profileName() default "";
 }
